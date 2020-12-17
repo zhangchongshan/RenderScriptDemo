@@ -9,14 +9,14 @@ android {
 
     defaultConfig {
         applicationId "com.sonoptek.renderscriptdemo"
-        minSdkVersion 18
+        minSdkVersion 24
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        renderscriptTargetApi 24
+        renderscriptTargetApi 18
         renderscriptSupportModeEnabled true
     }
 

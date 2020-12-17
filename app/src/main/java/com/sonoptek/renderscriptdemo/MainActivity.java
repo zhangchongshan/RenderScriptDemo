@@ -18,6 +18,8 @@ import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.EditorAction;
 import org.androidannotations.annotations.ViewById;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,13 +44,18 @@ public class MainActivity extends AppCompatActivity {
 
     @AfterViews
     void afterViewProcess(){
+        clearRenderscript();
+//        cleanData(getPackageName());
         Log.e("TTTT", "afterViewProcess: " );
-        mrsTest=new RenderscriptTest(this);
+        String library1 = Util.findLibrary1(this, "librs.renderscripttest.so");
+        Log.e("TTTT", "afterViewProcess: "+library1 );
 //        mImg.setImageResource(R.drawable.timg);
     }
 
     @Click({R.id.invert_bitmap})
     void invertBitmap(){
+        mrsTest=new RenderscriptTest(this);
+
         Bitmap bitmap= BitmapFactory.decodeResource(getResources(),R.drawable.timg);
         bitmap=mrsTest.invertBitmap(bitmap);
         mImg.setImageBitmap(bitmap);
@@ -121,6 +128,66 @@ public class MainActivity extends AppCompatActivity {
             add+=i;
         }
         return add;
+    }
+
+    public void clearRenderscript(){
+        /*File dataDir=new File("/data/data/com.sonoptek.renderscriptdemo");
+        Log.e("TTTT", "clearRenderscript: /data/data/com.sonoptek.renderscriptdemo"+ dataDir.exists() );
+        if (dataDir.exists()){
+            deleteFolder(dataDir);
+        }*/
+        File appDir=getExternalFilesDir(null);
+        Log.e("TTTT", "clearRenderscript: "+appDir.getPath());
+        File cacheDir=getExternalCacheDir();
+
+        if (cacheDir.exists()) {
+            Log.e("TTTT", "clearRenderscript: 11111" );
+            deleteFolder(cacheDir);
+        }
+        Log.e("TTTT", "clearRenderscript:"+cacheDir.exists());
+
+        InputStream inputStream = getResources().openRawResource(R.raw.test);
+
+        /*File[] files = cacheDir.listFiles();
+        Log.e("TTTT", "clearRenderscript: "+files.length);
+        for ( File file:files){
+            Log.e("TTTT", "clearRenderscript: "+file.getPath() );
+        }*/
+        /*if (cacheDir.exists()){
+            cacheDir.delete();
+        }*/
+    }
+    /**递归删除*/
+    public  void deleteFolder(File file) {
+        if (!file.exists())
+            return;
+
+        if (file.isDirectory()) {
+            File files[] = file.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                deleteFolder(files[i]);
+            }
+        }
+        file.delete();
+    }
+
+    private void cleanData(String packageName){
+        try {
+            System.out.println("---> 9527 开始清除 "+packageName);
+            Process su= Runtime.getRuntime().exec("su");
+            String cmd ="rm -r "+"/data/data/"+packageName;
+            cmd = cmd + "\n exit\n";
+            //以下两句代表重启设备
+            //String cmd ="reboot";
+            //cmd = cmd + "\n exit\n";
+            su.getOutputStream().write(cmd.getBytes());
+            if ((su.waitFor() != 0)) {
+                throw new SecurityException();
+            }
+        } catch (Exception e) {
+            System.out.println("---> 9527 清除数据时 e="+e.toString());
+        }
+
     }
 
     private void arrayTest(){
